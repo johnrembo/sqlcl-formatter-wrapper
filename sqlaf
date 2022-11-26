@@ -1,17 +1,42 @@
 #!/bin/bash
-# SQLCl formatter wrapper
+# SQLCl formatter wrapper.
+# Formatter uses the same package as SQL Developer IDE (least ugly) forrmatter 
+# and can be fune tuned using IDE GUI (https://www.salvis.com/blog/2020/04/13/formatting-code-with-sql-developer/)
 # Usage: sqlaf [sqldeveloper_formatter_settings.xml] < unformatted.sql > pretty.sql
+#
+# Requires a second or more to startup. Tune your client timeouts accordingly.
 
 # Set sqlcl executable path
 SQLCL=/opt/sqlcl/bin/sql
 
-rm -f /tmp/sqlaf.out 2 >> /dev/null
-cat /dev/stdin > /tmp/sqlaf.in
+# Direct input output swapping fails. SQLcl unconditionally emits 'Formatter rules loaded' into output
+TMP_INPUT_FILE="$(mktemp)"
+TMP_OUTPUT_FILE="$(mktemp)"
+TMP_LOG_FILE="$(mktemp)"
+
+# Optionally set custom path to rules
 if [[ -n "$1" ]]; then
     FMT=${1}
 else
     FMT="$(dirname -- "${BASH_SOURCE[0]}")/af.xml"
 fi
-printf "set echo off\nset feedback off\nset termout off\nformat rules ${FMT}\nformat file '/tmp/sqlaf.in' '/tmp/sqlaf.out'\n" | ${SQLCL} -S /nolog
-cat /tmp/sqlaf.out
-rm -f /tmp/sqlaf.in 2 >> /dev/null
+
+# Black magic against unsuppressable java wicked 'Picked...' message
+_SILENT_JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS} -Djava.util.logging.loglevel=OFF"
+unset JAVA_TOOL_OPTIONS
+alias java='java "$_SILENT_JAVA_TOOL_OPTIONS"'
+
+# Redir for lua interpreter that hides '/dev/stdin'
+cat - <&0 > "$TMP_INPUT_FILE"
+
+# None of these switches turn of formatter message
+printf "set serveroutput off\nset echo off\nset feedback off\nset termout off\nformat rules ${FMT}\nformat file '${TMP_INPUT_FILE}' '${TMP_OUTPUT_FILE}'\n" | ${SQLCL} -S /nolog 2>&1> "${TMP_LOG_FILE}"
+echo $res
+# Try to catch possible java error reports
+error=(grep -E "^\s*Symbol" "${TMP_LOG_FILE}")
+
+if [[ -n "$error" ]]; then
+    exit 1
+else
+    cat "$TMP_OUTPUT_FILE"
+fi

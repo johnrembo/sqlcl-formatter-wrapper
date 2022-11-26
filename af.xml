@@ -30,7 +30,7 @@
 <identSpaces>4</identSpaces>
 <breaksAfterSelect>false</breaksAfterSelect>
 <spaceAfterCommas>true</spaceAfterCommas>
-<!--
-<kwCase>oracle.dbtools.app.Format.Case.lower</kwCase>
+<!-- sqlcl bug
+<kwCase>oracle.dbtools.app.Format.Case.Lower</kwCase>
 -->
 </options>
