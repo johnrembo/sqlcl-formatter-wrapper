@@ -1,0 +1,17 @@
+#!/bin/bash
+# SQLCl formatter wrapper
+# Usage: sqlaf [sqldeveloper_formatter_settings.xml] < unformatted.sql > pretty.sql
+
+# Set sqlcl executable path
+SQLCL=/opt/sqlcl/bin/sql
+
+rm -f /tmp/sqlaf.out 2 >> /dev/null
+cat /dev/stdin > /tmp/sqlaf.in
+if [[ -n "$1" ]]; then
+    FMT=${1}
+else
+    FMT="$(dirname -- "${BASH_SOURCE[0]}")/af.xml"
+fi
+printf "set echo off\nset feedback off\nset termout off\nformat rules ${FMT}\nformat file '/tmp/sqlaf.in' '/tmp/sqlaf.out'\n" | ${SQLCL} -S /nolog
+cat /tmp/sqlaf.out
+rm -f /tmp/sqlaf.in 2 >> /dev/null
