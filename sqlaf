@@ -1,10 +1,20 @@
 #!/bin/bash
-# SQLCl formatter wrapper.
-# Formatter uses the same package as SQL Developer IDE (least ugly) forrmatter 
+#
+# SQLcl formatter wrapper (requires https://www.oracle.com/cis/database/sqldeveloper/technologies/sqlcl/)
+#
+# Formatter uses the same package as SQL Developer IDE (least ugly) forrmatter
 # and can be fune tuned using IDE GUI (https://www.salvis.com/blog/2020/04/13/formatting-code-with-sql-developer/)
+#
 # Usage: sqlaf [sqldeveloper_formatter_settings.xml] < unformatted.sql > pretty.sql
 #
 # Requires a second or more to startup. Tune your client timeouts accordingly.
+# When using custom sqldeveloper_formatter_settings.xml you may need to change contents of 
+# <formatProgramURL> tag to whatever path of real 'format.arbori' file location which likely is
+# '/<home-dir>/.sqldeveloper/system<sqldeveloper-version>/o.sqldeveloper/format.arbori'
+# Then as of sqldevelper v22.2.0.173.2018 and sqlcl v22.3.1.285.1828 you might need to 
+# comment out '| [node) attr_dim_hierarchy ' line in your custom 'format.arbori'
+
+# TODO: try a start a session SQLcl daemon
 
 # Set sqlcl executable path
 SQLCL=/opt/sqlcl/bin/sql
@@ -29,13 +39,13 @@ alias java='java "$_SILENT_JAVA_TOOL_OPTIONS"'
 # Redir for lua interpreter that hides '/dev/stdin'
 cat - <&0 > "$TMP_INPUT_FILE"
 
-# None of these switches turn of formatter message
-printf "set serveroutput off\nset echo off\nset feedback off\nset termout off\nformat rules ${FMT}\nformat file '${TMP_INPUT_FILE}' '${TMP_OUTPUT_FILE}'\n" | ${SQLCL} -S /nolog 2>&1> "${TMP_LOG_FILE}"
-echo $res
-# Try to catch possible java error reports
-error=(grep -E "^\s*Symbol" "${TMP_LOG_FILE}")
+# None of these switches turn off formatter message
+printf "set serveroutput off\nset echo off\nset feedback off\nset termout off\nformat rules ${FMT}\nformat file '${TMP_INPUT_FILE}' '${TMP_OUTPUT_FILE}'\n" | ${SQLCL} -S /nolog &> "${TMP_LOG_FILE}"
 
+# Try to catch possible java error reports
+error=$(grep -E "^\s*Symbol" "${TMP_LOG_FILE}")
 if [[ -n "$error" ]]; then
+    echo $error
     exit 1
 else
     cat "$TMP_OUTPUT_FILE"

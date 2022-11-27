@@ -13,7 +13,7 @@
 <breaksComma>oracle.dbtools.app.Format.Breaks.Before</breaksComma>
 <breaksAroundLogicalConjunctions>oracle.dbtools.app.Format.Breaks.Before</breaksAroundLogicalConjunctions>
 <alignNamedArgs>false</alignNamedArgs>
-<formatProgramURL>/home/rembo/.sqldeveloper/system22.2.0.173.2018/o.sqldeveloper/format.arbori</formatProgramURL>
+<formatProgramURL>af.arbori</formatProgramURL>
 <formatThreshold>1</formatThreshold>
 <spaceAroundOperators>true</spaceAroundOperators>
 <useTab>false</useTab>
@@ -30,7 +30,5 @@
 <identSpaces>4</identSpaces>
 <breaksAfterSelect>false</breaksAfterSelect>
 <spaceAfterCommas>true</spaceAfterCommas>
-<!-- sqlcl bug
-<kwCase>oracle.dbtools.app.Format.Case.Lower</kwCase>
--->
+<kwCase>oracle.dbtools.app.Format.Case.lower</kwCase>
 </options>
