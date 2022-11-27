@@ -13,7 +13,7 @@
 <breaksComma>oracle.dbtools.app.Format.Breaks.Before</breaksComma>
 <breaksAroundLogicalConjunctions>oracle.dbtools.app.Format.Breaks.Before</breaksAroundLogicalConjunctions>
 <alignNamedArgs>false</alignNamedArgs>
-<formatProgramURL>af.arbori</formatProgramURL>
+<formatProgramURL>/home/rembo/src/sqlcl-formatter-wrapper/af.arbori</formatProgramURL>
 <formatThreshold>1</formatThreshold>
 <spaceAroundOperators>true</spaceAroundOperators>
 <useTab>false</useTab>

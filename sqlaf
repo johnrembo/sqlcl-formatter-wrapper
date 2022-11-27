@@ -46,7 +46,14 @@ printf "set serveroutput off\nset echo off\nset feedback off\nset termout off\nf
 error=$(grep -E "^\s*Symbol" "${TMP_LOG_FILE}")
 if [[ -n "$error" ]]; then
     echo $error
-    exit 1
+    exit_code=1
 else
     cat "$TMP_OUTPUT_FILE"
+    exit_code=0
 fi
+
+# Finally
+rm -f $TMP_LOG_FILE
+rm -f $TMP_INPUT_FILE 
+rm -f $TMP_OUTPUT_FILE
+exit $exit_code
