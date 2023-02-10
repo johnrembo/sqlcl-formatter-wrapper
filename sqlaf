@@ -23,12 +23,13 @@ SQLCL=/opt/sqlcl/bin/sql
 TMP_INPUT_FILE="$(mktemp)"
 TMP_OUTPUT_FILE="$(mktemp)"
 TMP_LOG_FILE="$(mktemp)"
+LOG_FILE="$(dirname -- ${BASH_SOURCE[0]})/sqlaf.log"
 
 # Optionally set custom path to rules
 if [[ -n "$1" ]]; then
     FMT=${1}
 else
-    FMT="$(dirname -- "${BASH_SOURCE[0]}")/af.xml"
+    FMT=$(dirname -- ${BASH_SOURCE[0]})/af.xml
 fi
 
 # Black magic against unsuppressable java wicked 'Picked...' message
@@ -39,16 +40,20 @@ alias java='java "$_SILENT_JAVA_TOOL_OPTIONS"'
 # Redir for lua interpreter that hides '/dev/stdin'
 cat - <&0 > "$TMP_INPUT_FILE"
 
-# None of these switches turn off formatter message
-printf "set serveroutput off\nset echo off\nset feedback off\nset termout off\nformat rules ${FMT}\nformat file '${TMP_INPUT_FILE}' '${TMP_OUTPUT_FILE}'\n" | ${SQLCL} -S /nolog &> "${TMP_LOG_FILE}"
+# Exec sqlcl
+printf "format rules ${FMT}\nformat file '${TMP_INPUT_FILE}' '${TMP_OUTPUT_FILE}'\n" | ${SQLCL} -S /nolog &> "${TMP_LOG_FILE}"
 
 # Try to catch possible java error reports
-error=$(grep -E "^\s*Symbol" "${TMP_LOG_FILE}")
+error=$(grep -E "Skipped formatting [^\s]+ -- parse error" "${TMP_LOG_FILE}")
+
 if [[ -n "$error" ]]; then
     echo $error
+    echo $(date --rfc-3339=seconds) >> "${LOG_FILE}"
+    cat "${TMP_LOG_FILE}" >> "${LOG_FILE}"
+    echo "See ${LOG_FILE} for details"
     exit_code=1
 else
-    cat "$TMP_OUTPUT_FILE"
+    cat $TMP_OUTPUT_FILE
     exit_code=0
 fi
 
