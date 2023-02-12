@@ -17,7 +17,7 @@
 # TODO: try a start a session SQLcl daemon
 
 # Set sqlcl executable path
-SQLCL=/opt/sqlcl/bin/sql
+SQLCL=/opt/sqldeveloper/sqldeveloper/bin/sql
 
 # Direct input output swapping fails. SQLcl unconditionally emits 'Formatter rules loaded' into output
 TMP_INPUT_FILE="$(mktemp)"
